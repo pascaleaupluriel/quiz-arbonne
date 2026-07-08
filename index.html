@@ -1,4 +1,666 @@
-<!DOCTYPE html>
+<!DOCTYPE html><!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pascale au pluriel — Est-ce que t'es prête ?</title>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Questrial&family=Jost:wght@300;400;500&family=Archivo:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --creme:     #403F2B;
+    --creme-dark:#4D4B36;
+    --olive:     #F3F1C4;
+    --sage:      #F3F1C4;
+    --tan:       #F3F1C4;
+    --terra:     #F3F1C4;
+    --white:     #4D4B36;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: #403F2B;
+    color: #F3F1C4;
+    font-family: 'Jost', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    padding: 0 0 80px;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background-color: #29291F;
+    padding: 48px 24px 40px;
+    text-align: center;
+
+  }
+
+  .brand {
+    font-family: 'Questrial', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: #FEFAF1;
+    margin-bottom: 20px;
+  }
+  header h1 {
+    font-family: 'Questrial', sans-serif;
+    font-size: clamp(32px, 8vw, 52px);
+    font-weight: 300;
+    font-style: italic;
+    color: #F3F1C4;
+    line-height: 1.15;
+    position: relative;
+  }
+  header h1 em {
+    font-style: normal;
+    color: #C9A99A;
+  }
+  .subtitle {
+    margin-top: 16px;
+    font-size: 13px;
+    font-weight: 300;
+    letter-spacing: 0.12em;
+    color: rgba(243,241,196,0.6);
+    position: relative;
+  }
+
+  /* ── PROGRESS ── */
+  .progress-wrap {
+    background: #4D4B36;
+    height: 3px;
+    width: 100%;
+  }
+  .progress-bar {
+    height: 100%;
+    background: #C9A99A;
+    width: 0%;
+    transition: width 0.5s ease;
+  }
+
+  /* ── CONTAINER ── */
+  .container {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  /* ── STEPS ── */
+  .step {
+    display: none;
+    animation: fadeUp 0.4s ease forwards;
+  }
+  .step.active { display: block; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── QUESTION CARD ── */
+  .q-card {
+    background: #4D4B36;
+    border-radius: 2px;
+    padding: 36px 28px 32px;
+    margin-top: 36px;
+    border-top: 3px solid #C9A99A;
+  }
+  .q-number {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: #C9A99A;
+    margin-bottom: 14px;
+  }
+  .q-text {
+    font-family: 'Questrial', sans-serif;
+    font-size: clamp(20px, 5vw, 26px);
+    font-weight: 400;
+    line-height: 1.35;
+    color: #F3F1C4;
+    margin-bottom: 28px;
+  }
+  .q-hint {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: rgba(243,241,196,0.6);
+    margin-bottom: 20px;
+    text-transform: uppercase;
+  }
+
+  /* ── OPTIONS ── */
+  .options { display: flex; flex-direction: column; gap: 10px; }
+
+  .option {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    border: 1.5px solid #5a5840;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: transparent;
+    position: relative;
+  }
+  .option:hover {
+    border-color: #FEFAF1;
+    background: rgba(254,250,241,0.06);
+  }
+  .option.selected {
+    border-color: #F3F1C4;
+    background: rgba(243,241,196,0.1);
+  }
+  .option-box {
+    width: 18px;
+    height: 18px;
+    min-width: 18px;
+    border: 1.5px solid #F3F1C4;
+    border-radius: 2px;
+    margin-top: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+  .option.selected .option-box {
+    background: #C9A99A;
+    border-color: #C9A99A;
+  }
+  .option.selected .option-box::after {
+    content: '';
+    width: 5px;
+    height: 9px;
+    border: 2px solid #FEFAF1;
+    border-top: none;
+    border-left: none;
+    transform: rotate(45deg) translateY(-1px);
+    display: block;
+  }
+  .option-label {
+    font-size: 14px;
+    font-weight: 300;
+    line-height: 1.5;
+    color: #F3F1C4;
+  }
+  .option.selected .option-label {
+    font-weight: 400;
+  }
+
+  /* ── NAV BUTTONS ── */
+  .nav {
+    display: flex;
+    gap: 12px;
+    margin-top: 28px;
+    justify-content: flex-end;
+  }
+  .btn {
+    padding: 13px 32px;
+    font-family: 'Jost', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+  }
+  .btn-back {
+    background: #403F2B;
+    border: 1.5px solid #403F2B;
+    color: #F3F1C4;
+  }
+  .btn-back:hover {
+    background: #29291F;
+    border-color: #29291F;
+    color: #FEFAF1;
+  }
+  .btn-next {
+    background: #C9A99A;
+    color: #FEFAF1;
+  }
+  .btn-next:hover {
+    background: #C9A99Add;
+  }
+  .btn-next:disabled {
+    background: #4D4B36;
+    color: #F3F1C4;
+    cursor: not-allowed;
+  }
+  .btn-submit {
+    background: #C9A99A;
+    color: #FEFAF1;
+    width: 100%;
+    padding: 16px;
+    font-size: 13px;
+  }
+  .btn-submit:hover { background: #C9A99Acc; }
+
+  /* ── MERCI ── */
+  .merci {
+    display: none;
+    text-align: center;
+    padding: 60px 24px;
+    animation: fadeUp 0.5s ease forwards;
+    background-color: #403F2B;
+    min-height: 100vh;
+    margin: 0 -20px;
+    padding-left: 40px;
+    padding-right: 40px;
+  }
+  .merci.active { display: block; }
+  .merci-icon {
+    font-size: 40px;
+    margin-bottom: 24px;
+  }
+  .merci h2 {
+    font-family: 'Questrial', sans-serif;
+    font-size: clamp(28px, 7vw, 40px);
+    font-weight: 300;
+    font-style: italic;
+    color: #F3F1C4;
+    line-height: 1.2;
+    margin-bottom: 20px;
+  }
+  .merci p {
+    font-size: 15px;
+    font-weight: 300;
+    color: #FEFAF1;
+    line-height: 1.8;
+    max-width: 400px;
+    margin: 0 auto 8px;
+  }
+  .merci-signature {
+    margin-top: 36px;
+    font-family: 'Questrial', sans-serif;
+    font-size: 18px;
+    font-style: italic;
+    color: #C9A99A;
+  }
+  .btn-calendly {
+    display: inline-block;
+    margin-top: 28px;
+    padding: 16px 36px;
+    background: #C9A99A;
+    color: #FEFAF1;
+    font-family: 'Jost', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-radius: 2px;
+    transition: background 0.25s ease;
+  }
+  .btn-calendly:hover { background: #7a4f30; }
+
+  /* ── NAME FIELD ── */
+  .name-field {
+    margin-top: 36px;
+  }
+  .name-field label {
+    display: block;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: #C9A99A;
+    margin-bottom: 10px;
+  }
+  .name-field input {
+    width: 100%;
+    padding: 14px 16px;
+    background: #4D4B36;
+    border: 1.5px solid #5a5840;
+    border-radius: 2px;
+    font-family: 'Jost', sans-serif;
+    font-size: 15px;
+    font-weight: 300;
+    color: #F3F1C4;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .name-field input:focus { border-color: #C9A99A; }
+  .name-field input::placeholder { color: #F3F1C4; }
+
+  /* ── DIVIDER ── */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 32px 0 0;
+    color: #F3F1C4;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #4D4B36;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">Pascale au pluriel</div>
+  <h1>Est-ce que<br>t'es prête pour<br><em>autre chose ?</em></h1>
+  <p class="subtitle">2 minutes honnêtes avec toi-même</p>
+</header>
+
+<div class="progress-wrap">
+  <div class="progress-bar" id="progressBar"></div>
+</div>
+
+<div class="container">
+
+  <!-- ÉTAPE 0 : Prénom -->
+  <div class="step active" id="step-0">
+    <div class="q-card">
+      <div class="q-number">Pour commencer</div>
+      <div class="q-text">Comment tu t'appelles ?</div>
+      <div class="name-field">
+        <label for="prenom">Ton prénom</label>
+        <input type="text" id="prenom" placeholder="Écris ton prénom ici..." autocomplete="given-name">
+      </div>
+    </div>
+    <div class="nav">
+      <button class="btn btn-next" onclick="nextStep(0)">Continuer →</button>
+    </div>
+  </div>
+
+  <!-- Q1 -->
+  <div class="step" id="step-1">
+    <div class="q-card">
+      <div class="q-number">Question 01 / 06</div>
+      <div class="q-text">Qu'est-ce qui t'attire dans une opportunité comme ça ?</div>
+      <div class="q-hint">Sélectionne tout ce qui te parle</div>
+      <div class="options" data-multi="true" data-q="1">
+        <div class="option" onclick="toggleOption(this)"><div class="option-box"></div><div class="option-label">Créer un revenu en ligne</div></div>
+        <div class="option" onclick="toggleOption(this)"><div class="option-box"></div><div class="option-label">Un projet perso qui me ressemble</div></div>
+        <div class="option" onclick="toggleOption(this)"><div class="option-box"></div><div class="option-label">Prendre soin de ma santé en même temps</div></div>
+        <div class="option" onclick="toggleOption(this)"><div class="option-box"></div><div class="option-label">Faire partie d'une communauté de femmes positives</div></div>
+      </div>
+    </div>
+    <div class="nav">
+      <button class="btn btn-back" onclick="prevStep(1)">← Retour</button>
+      <button class="btn btn-next" onclick="nextStep(1)">Continuer →</button>
+    </div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="step" id="step-2">
+    <div class="q-card">
+      <div class="q-number">Question 02 / 06</div>
+      <div class="q-text">Que ferais-tu avec un revenu supplémentaire ?</div>
+      <div class="q-hint">Sélectionne tout ce qui s'applique</div>
+      <div class="options" data-multi="true" data-q="2">
+        <div class="option" onclick="toggleOption(this)"><div class="option-box"></div><div class="option-label">Rembourser une dette</div></div>
+        <div class="option" onclick="toggleOption(this)"><div class="option-box"></div><div class="option-label">Bâtir une sécurité financière à long terme</div></div>
+        <div class="option" onclick="toggleOption(this)"><div class="option-box"></div><div class="option-label">Pouvoir faire ce que je veux quand je veux</div></div>
+        <div class="option" onclick="toggleOption(this)"><div class="option-box"></div><div class="option-label">Voyager plus</div></div>
+        <div class="option" onclick="toggleOption(this)"><div class="option-box"></div><div class="option-label">Payer mes factures sans me serrer la ceinture</div></div>
+      </div>
+    </div>
+    <div class="nav">
+      <button class="btn btn-back" onclick="prevStep(2)">← Retour</button>
+      <button class="btn btn-next" onclick="nextStep(2)">Continuer →</button>
+    </div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="step" id="step-3">
+    <div class="q-card">
+      <div class="q-number">Question 03 / 06</div>
+      <div class="q-text">Quel montant voudrais-tu gagner par mois ?</div>
+      <div class="q-hint">Choisis une option</div>
+      <div class="options" data-multi="false" data-q="3">
+        <div class="option" onclick="toggleOption(this)"><div class="option-box"></div><div class="option-label">200 – 500 $</div></div>
+        <div class="option" onclick="toggleOption(this)"><div class="option-box"></div><div class="option-label">1 000 – 5 000 $</div></div>
+        <div class="option" onclick="toggleOption(this)"><div class="option-box"></div><div class="option-label">5 000 $ et +</div></div>
+        <div class="option" onclick="toggleOption(this)"><div class="option-box"></div><div class="option-label">Je veux faire +++ et rapidement</div></div>
+      </div>
+    </div>
+    <div class="nav">
+      <button class="btn btn-back" onclick="prevStep(3)">← Retour</button>
+      <button class="btn btn-next" onclick="nextStep(3)">Continuer →</button>
+    </div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="step" id="step-4">
+    <div class="q-card">
+      <div class="q-number">Question 04 / 06</div>
+      <div class="q-text">Quel est ton plus gros blocage ?</div>
+      <div class="q-hint">Sélectionne tout ce qui te parle</div>
+      <div class="options" data-multi="true" data-q="4">
+        <div class="option" onclick="toggleOption(this)"><div class="option-box"></div><div class="option-label">Je n'ai pas de temps</div></div>
+        <div class="option" onclick="toggleOption(this)"><div class="option-box"></div><div class="option-label">Je ne suis pas vendeuse</div></div>
+        <div class="option" onclick="toggleOption(this)"><div class="option-box"></div><div class="option-label">J'ai peur de l'opinion des autres</div></div>
+        <div class="option" onclick="toggleOption(this)"><div class="option-box"></div><div class="option-label">Aucune hésitation !!</div></div>
+      </div>
+    </div>
+    <div class="nav">
+      <button class="btn btn-back" onclick="prevStep(4)">← Retour</button>
+      <button class="btn btn-next" onclick="nextStep(4)">Continuer →</button>
+    </div>
+  </div>
+
+  <!-- Q5 -->
+  <div class="step" id="step-5">
+    <div class="q-card">
+      <div class="q-number">Question 05 / 06</div>
+      <div class="q-text">Si tu continues exactement comme maintenant, tu te vois où dans 5 ans ?</div>
+      <div class="q-hint">Choisis une option</div>
+      <div class="options" data-multi="false" data-q="5">
+        <div class="option" onclick="toggleOption(this)"><div class="option-box"></div><div class="option-label">Au même endroit, et ça me convient</div></div>
+        <div class="option" onclick="toggleOption(this)"><div class="option-box"></div><div class="option-label">Probablement pareil, et ça m'inquiète un peu</div></div>
+        <div class="option" onclick="toggleOption(this)"><div class="option-box"></div><div class="option-label">Je veux pas y penser, ça me fait peur</div></div>
+        <div class="option" onclick="toggleOption(this)"><div class="option-box"></div><div class="option-label">C'est exactement pourquoi je cherche quelque chose de différent</div></div>
+      </div>
+    </div>
+    <div class="nav">
+      <button class="btn btn-back" onclick="prevStep(5)">← Retour</button>
+      <button class="btn btn-next" onclick="nextStep(5)">Continuer →</button>
+    </div>
+  </div>
+
+  <!-- Q6 -->
+  <div class="step" id="step-6">
+    <div class="q-card">
+      <div class="q-number">Question 06 / 06</div>
+      <div class="q-text">Es-tu ouverte à un appel de 15 minutes pour voir si c'est vraiment fait pour toi ?</div>
+      <div class="q-hint">Choisis une option</div>
+      <div class="options" data-multi="false" data-q="6">
+        <div class="option" onclick="toggleOption(this)"><div class="option-box"></div><div class="option-label">Oui, je veux savoir !</div></div>
+        <div class="option" onclick="toggleOption(this)"><div class="option-box"></div><div class="option-label">Pas pour le moment</div></div>
+      </div>
+    </div>
+    <div class="nav">
+      <button class="btn btn-back" onclick="prevStep(6)">← Retour</button>
+      <button class="btn btn-submit btn-next" onclick="submitForm()">Envoyer mes réponses ✨</button>
+    </div>
+  </div>
+
+  <!-- ÉTAPE 7 — CALENDLY (si OUI) -->
+  <div class="merci" id="step-calendly">
+    <div class="merci-icon">🗓️</div>
+    <h2>Tu es au bon endroit.<br><em style="font-style:normal;color:var(--terra);">Réserve ton appel maintenant.</em></h2>
+    <p>15 minutes pour voir si c'est vraiment fait pour toi.<br>Sans pression. Juste une vraie conversation.</p>
+    <a href="https://calendly.com/pascaleaupluriel/15-min-pour-toi" target="_blank" class="btn-calendly">
+      Réserver mon appel de 15 min →
+    </a>
+    <p style="margin-top:20px;font-size:12px;color:var(--sage);">Tu pourras choisir le moment qui te convient le mieux.</p>
+    <div class="merci-signature">— Pascale 🤍</div>
+  </div>
+
+  <!-- MERCI (si NON) -->
+  <div class="merci" id="merci">
+    <div class="merci-icon">☝🏽</div>
+    <h2>Pas de problème<br><em style="font-style:normal;color:var(--terra);">mais avant de partir...</em></h2>
+    <p>Reçois gratuitement mon guide :</p>
+    <p style="font-family:'Cormorant Garamond',serif;font-size:18px;font-style:italic;color:var(--olive);font-weight:400;margin:12px auto 28px;">
+      "Comment créer un premier revenu en ligne<br>de façon réaliste"
+    </p>
+
+    <div id="guide-form" style="max-width:360px;margin:0 auto;">
+      <input type="email" id="guide-email" placeholder="Ton adresse courriel" style="width:100%;padding:14px 16px;background:#4D4B36;border:1.5px solid #5a5840;border-radius:2px;font-family:'Jost',sans-serif;font-size:15px;font-weight:300;color:#F3F1C4;outline:none;margin-bottom:12px;box-sizing:border-box;">
+      <button onclick="submitGuide()" style="width:100%;padding:15px;background:#C9A99A;color:#FEFAF1;font-family:'Jost',sans-serif;font-size:12px;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;border:none;border-radius:2px;cursor:pointer;transition:background 0.25s;">
+        Je veux mon guide gratuit →
+      </button>
+    </div>
+
+    <div id="guide-confirm" style="display:none;margin-top:20px;">
+      <p style="color:#C9A99A;font-weight:400;" style="color:#C9A99A;font-weight:500;">✓ Parfait ! Surveille ta boîte courriel. 🌿</p>
+    </div>
+
+    <div style="margin-top:36px;padding-top:28px;border-top:1px solid var(--creme-dark);">
+      <p style="font-size:13px;color:var(--sage);margin-bottom:16px;">Tu peux aussi me suivre sur Instagram<br>pour rester dans l'univers :</p>
+      <a href="https://www.instagram.com/pascaleaupluriel" target="_blank" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border:1.5px solid #F3F1C4;border-radius:2px;font-family:'Jost',sans-serif;font-size:12px;font-weight:500;letter-spacing:0.15em;text-transform:uppercase;color:#F3F1C4;text-decoration:none;transition:all 0.25s;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+        @pascaleaupluriel
+      </a>
+    </div>
+
+    <div class="merci-signature">— Pascale 🤍</div>
+  </div>
+
+</div>
+
+<script>
+  const TOTAL_STEPS = 7;
+
+  function showStep(n) {
+    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+    const el = document.getElementById('step-' + n);
+    if (el) el.classList.add('active');
+    const pct = n === 0 ? 0 : Math.round((n / 6) * 100);
+    document.getElementById('progressBar').style.width = pct + '%';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function nextStep(current) {
+    if (current === 0) {
+      const val = document.getElementById('prenom').value.trim();
+      if (!val) {
+        document.getElementById('prenom').focus();
+        return;
+      }
+    }
+    if (current >= 1) {
+      const opts = document.querySelectorAll('#step-' + current + ' .option.selected');
+      if (opts.length === 0) {
+        const hint = document.querySelector('#step-' + current + ' .q-hint');
+        if (hint) { hint.style.color = '#935137'; setTimeout(() => hint.style.color = '', 1000); }
+        return;
+      }
+    }
+    if (current < 6) showStep(current + 1);
+  }
+
+  function prevStep(current) {
+    if (current > 0) showStep(current - 1);
+  }
+
+  function toggleOption(el) {
+    const group = el.closest('.options');
+    const isMulti = group.dataset.multi === 'true';
+    if (!isMulti) {
+      group.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+    }
+    el.classList.toggle('selected');
+  }
+
+  // Init EmailJS
+  emailjs.init('UrJYO1wAuEtkERK0z');
+
+  // ── KIT (ConvertKit) ──
+  const KIT_FORM_ID = '9660549';
+
+  function sendToKit(email, prenom) {
+    if (!KIT_FORM_ID) return;
+    const formData = new FormData();
+    formData.append('email_address', email);
+    if (prenom) formData.append('fields[first_name]', prenom);
+    fetch('https://app.kit.com/forms/' + KIT_FORM_ID + '/subscriptions', {
+      method: 'POST',
+      body: formData
+    }).catch(err => console.error('Kit error:', err));
+  }
+
+  function getSelected(stepId) {
+    const opts = document.querySelectorAll('#' + stepId + ' .option.selected .option-label');
+    return Array.from(opts).map(o => o.textContent.trim()).join(', ') || '—';
+  }
+
+  function submitGuide() {
+    const email = document.getElementById('guide-email').value.trim();
+    if (!email || !email.includes('@')) {
+      document.getElementById('guide-email').style.borderColor = '#C9A99A';
+      setTimeout(() => document.getElementById('guide-email').style.borderColor = '', 1000);
+      return;
+    }
+
+    // Envoyer le courriel dans Kit (déclenche le courriel de confirmation + PDF)
+    sendToKit(email, document.getElementById('prenom').value.trim());
+
+    // Envoyer les infos guide par email
+    emailjs.send('service_vtacya5', 'template_u1lg9fm', {
+      prenom:      document.getElementById('prenom').value.trim(),
+      q1:          getSelected('step-1'),
+      q2:          getSelected('step-2'),
+      q3:          getSelected('step-3'),
+      q4:          getSelected('step-4'),
+      q5:          getSelected('step-5'),
+      q6:          'Pas pour le moment',
+      email_guide: email
+    });
+
+    document.getElementById('guide-form').style.display = 'none';
+    document.getElementById('guide-confirm').style.display = 'block';
+  }
+
+  function submitForm() {
+    const opts = document.querySelectorAll('#step-6 .option.selected');
+    if (opts.length === 0) {
+      const hint = document.querySelector('#step-6 .q-hint');
+      if (hint) { hint.style.color = '#C9A99A'; setTimeout(() => hint.style.color = '', 1000); }
+      return;
+    }
+    const choix = opts[0].querySelector('.option-label').textContent.trim();
+    const ditOui = choix.startsWith('Oui');
+
+    // Envoyer toutes les réponses par email
+    emailjs.send('service_vtacya5', 'template_u1lg9fm', {
+      prenom:      document.getElementById('prenom').value.trim(),
+      q1:          getSelected('step-1'),
+      q2:          getSelected('step-2'),
+      q3:          getSelected('step-3'),
+      q4:          getSelected('step-4'),
+      q5:          getSelected('step-5'),
+      q6:          choix,
+      email_guide: '—'
+    });
+
+    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+    document.getElementById('progressBar').style.width = '100%';
+
+    if (ditOui) {
+      document.getElementById('step-calendly').classList.add('active');
+    } else {
+      document.getElementById('merci').classList.add('active');
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
